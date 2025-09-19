@@ -1,0 +1,63 @@
+version: "3.8"              
+
+services:                      # Hier werden die Container definiert
+
+  db:                          # Datenbank-Service (MariaDB)
+    image: mariadb:10.6        # Verwendetes Image: MariaDB in Version 10.6
+    restart: always            # Container startet automatisch neu, falls er abstürzt
+    environment:               # Datenbank-Konfiguration
+      MYSQL_DATABASE: mediawiki
+      MYSQL_USER: mwuser
+      MYSQL_PASSWORD_FILE: /run/secrets/db_password     # Passwort kommt aus Docker-Secret
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+    volumes:
+      - db_data:/var/lib/mysql  # Speichert die Datenbank persistent
+    secrets:
+      - db_password
+      - db_root_password
+    deploy:
+      resources:                # Ressourcen-Beschränkungen für den Container
+        limits:
+          cpus: "0.5"          
+          memory: 512M          
+
+  mediawiki:                    # Hauptservice: MediaWiki
+    image: mediawiki:latest     # Verwendetes Image: MediaWiki
+    restart: always
+    depends_on:
+      - db                      # Startet erst, wenn die DB bereit ist
+    ports:
+      - "8080:80"               # Erreichbar im Browser über localhost:8080
+    volumes:
+      - mediawiki_images:/var/www/html/images  # Speichert Uploads (Bilder, Dateien) persistent
+    deploy:
+      resources:				# Ressourcen-Beschränkungen für den Container
+        limits:
+          cpus: "0.5"           
+          memory: 512M          
+
+  portainer:                    # Verwaltungsoberfläche für Docker
+    image: portainer/portainer-ce:latest
+    restart: always
+    ports:
+      - "9000:9000"             # Erreichbar im Browser über localhost:9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock   # Portainer greift auf Docker-Engine zu
+      - portainer_data:/data                        # Speichert Portainer-Daten persistent
+    deploy:
+      resources:			    # Ressourcen-Beschränkungen für den Container
+        limits:
+          cpus: "0.25"          
+          memory: 256M          
+
+volumes:                        # Definierte Volumes für Persistenz
+  db_data:
+  mediawiki_images:
+  portainer_data:
+
+secrets:                        # Docker-Secrets (für sichere Passwörter)
+  db_password:
+    file: ./secrets/db_password.txt
+  db_root_password:
+    file: ./secrets/db_root_password.txt
+
