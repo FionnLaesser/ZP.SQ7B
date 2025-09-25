@@ -1,7 +1,7 @@
 # Arbeitsplan (IPERKA Schritt 2)
 
-Projekt: Container-Services fuer KMU (Nextcloud 8080, gogs/GitLab, Portainer, Persistenz, GitHub-Versionierung)  
-Team: ___________________________      Datum: __________
+Projekt: Container-Services für KMU (Nextcloud 8080, gogs/GitLab, Portainer, Persistenz, GitHub-Versionierung)  
+Team: Fionn und Janik     Datum: 
 
 ## Struktur & Artefakte
 - `docs/` → **Arbeitsplan.md**, **Testkonzept.md**, **Testprotokoll.md**, **Sicherheitskonzept.md**, **Journal.md**
